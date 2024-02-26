@@ -1,0 +1,401 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="BankGatewayModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Account">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="AccountNo" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IbanNo" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="BankName" Type="nchar" MaxLength="10" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AppLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Date" Type="datetime" />
+          <Property Name="Thread" Type="nvarchar" MaxLength="50" />
+          <Property Name="Level" Type="nvarchar" MaxLength="50" />
+          <Property Name="Logger" Type="nvarchar" MaxLength="50" />
+          <Property Name="Message" Type="nvarchar" MaxLength="255" />
+          <Property Name="Exception" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Order">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Title" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="DueDate" Type="datetime" />
+          <Property Name="Payable" Type="bit" Nullable="false" />
+          <Property Name="ProjectName" Type="int" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="ProjectOrderId" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="SourceAccountId" Type="int" Nullable="false" />
+          <Property Name="Confirm" Type="bit" />
+        </EntityType>
+        <EntityType Name="Package">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="OrderId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="CreationDate" Type="datetime" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="ProjectPackageId" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Record">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="PackageId" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PackageId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="DestinationAccountNo" Type="nvarchar" MaxLength="50" />
+          <Property Name="DestinationShebaNo" Type="nvarchar" MaxLength="50" />
+          <Property Name="DestinationName" Type="nvarchar" MaxLength="50" />
+          <Property Name="PaymentCode" Type="nvarchar" MaxLength="50" />
+          <Property Name="Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="Amount" Type="float" Nullable="false" />
+          <Property Name="DateTime" Type="nvarchar" MaxLength="50" />
+          <Property Name="PaymentStatus" Type="int" />
+          <Property Name="SourceAccountId" Type="int" />
+          <Property Name="ProjectRecordId" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ProjectName" Type="int" />
+        </EntityType>
+        <Association Name="FK_Order_Account">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="Order" Type="Self.Order" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Order">
+              <PropertyRef Name="SourceAccountId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Package_Order">
+          <End Role="Order" Type="Self.Order" Multiplicity="1" />
+          <End Role="Package" Type="Self.Package" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Order">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Package">
+              <PropertyRef Name="OrderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Record_Account">
+          <End Role="Account" Type="Self.Account" Multiplicity="0..1" />
+          <End Role="Record" Type="Self.Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Record">
+              <PropertyRef Name="SourceAccountId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Record_Package">
+          <End Role="Package" Type="Self.Package" Multiplicity="1" />
+          <End Role="Record" Type="Self.Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Package">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Record">
+              <PropertyRef Name="PackageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="BankGatewayModelStoreContainer">
+          <EntitySet Name="Account" EntityType="Self.Account" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AppLog" EntityType="Self.AppLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Order" EntityType="Self.Order" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Package" EntityType="Self.Package" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Record" EntityType="Self.Record" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Order_Account" Association="Self.FK_Order_Account">
+            <End Role="Account" EntitySet="Account" />
+            <End Role="Order" EntitySet="Order" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Package_Order" Association="Self.FK_Package_Order">
+            <End Role="Order" EntitySet="Order" />
+            <End Role="Package" EntitySet="Package" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Record_Account" Association="Self.FK_Record_Account">
+            <End Role="Account" EntitySet="Account" />
+            <End Role="Record" EntitySet="Record" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Record_Package" Association="Self.FK_Record_Package">
+            <End Role="Package" EntitySet="Package" />
+            <End Role="Record" EntitySet="Record" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="BankGatewayModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Account">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AccountNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IbanNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="BankName" Type="String" MaxLength="10" FixedLength="true" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Records" Relationship="BankGatewayModel.FK_Record_Account" FromRole="Account" ToRole="Record" />
+          <NavigationProperty Name="Orders" Relationship="BankGatewayModel.FK_Order_Account" FromRole="Account" ToRole="Order" />
+        </EntityType>
+        <EntityType Name="Package">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="OrderId" Type="Guid" Nullable="false" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Status" Type="BankGatewayModel.CasStatuse" Nullable="false" />
+          <Property Name="ProjectPackageId" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="Records" Relationship="BankGatewayModel.FK_Record_Package" FromRole="Package" ToRole="Record" />
+          <NavigationProperty Name="Order" Relationship="BankGatewayModel.FK_Package_Order" FromRole="Package" ToRole="Order" />
+        </EntityType>
+        <EntityContainer Name="BankGatewayDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Accounts" EntityType="Self.Account" />
+          <EntitySet Name="Packages" EntityType="Self.Package" />
+          <EntitySet Name="AppLogs" EntityType="BankGatewayModel.AppLog" />
+          <EntitySet Name="Records" EntityType="BankGatewayModel.Record" />
+          <AssociationSet Name="FK_Record_Account" Association="BankGatewayModel.FK_Record_Account">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="Record" EntitySet="Records" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Record_Package" Association="BankGatewayModel.FK_Record_Package">
+            <End Role="Package" EntitySet="Packages" />
+            <End Role="Record" EntitySet="Records" />
+          </AssociationSet>
+          <EntitySet Name="Orders" EntityType="BankGatewayModel.Order" />
+          <AssociationSet Name="FK_Order_Account" Association="BankGatewayModel.FK_Order_Account">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="Order" EntitySet="Orders" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Package_Order" Association="BankGatewayModel.FK_Package_Order">
+            <End Role="Order" EntitySet="Orders" />
+            <End Role="Package" EntitySet="Packages" />
+          </AssociationSet>
+        </EntityContainer>
+        <EnumType Name="CasStatuse" a:ExternalTypeName="BankGateway.Domain.Data.Enum.CasStatus" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        <EnumType Name="PaymentStatus" a:ExternalTypeName="BankGateway.Domain.Data.Enum.PaymentStatus" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        <EntityType Name="AppLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Precision="3" />
+          <Property Name="Thread" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Level" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Logger" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Message" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Exception" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EnumType Name="ExternalProjectName">
+          <Member Name="Danesh" Value="1" />
+        </EnumType>
+        <EntityType Name="Record">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="PackageId" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="PackageId" Type="Guid" Nullable="false" />
+          <Property Name="DestinationAccountNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DestinationShebaNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DestinationName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PaymentCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Amount" Type="Double" Nullable="false" />
+          <Property Name="DateTime" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PaymentStatus" Type="BankGatewayModel.PaymentStatus" />
+          <Property Name="SourceAccountId" Type="Int32" />
+          <Property Name="ProjectRecordId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectName" Type="BankGatewayModel.ExternalProjectName" />
+          <NavigationProperty Name="Account" Relationship="BankGatewayModel.FK_Record_Account" FromRole="Record" ToRole="Account" />
+          <NavigationProperty Name="Package" Relationship="BankGatewayModel.FK_Record_Package" FromRole="Record" ToRole="Package" />
+        </EntityType>
+        <Association Name="FK_Record_Account">
+          <End Type="BankGatewayModel.Account" Role="Account" Multiplicity="0..1" />
+          <End Type="BankGatewayModel.Record" Role="Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Record">
+              <PropertyRef Name="SourceAccountId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Record_Package">
+          <End Type="BankGatewayModel.Package" Role="Package" Multiplicity="1" />
+          <End Type="BankGatewayModel.Record" Role="Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Package">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Record">
+              <PropertyRef Name="PackageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Order">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="DueDate" Type="DateTime" Precision="3" />
+          <Property Name="Payable" Type="Boolean" Nullable="false" />
+          <Property Name="ProjectName" Type="BankGatewayModel.ExternalProjectName" Nullable="false" />
+          <Property Name="Status" Type="BankGatewayModel.CasStatuse" Nullable="false" />
+          <Property Name="ProjectOrderId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SourceAccountId" Type="Int32" Nullable="false" />
+          <Property Name="Confirm" Type="Boolean" />
+          <NavigationProperty Name="Account" Relationship="BankGatewayModel.FK_Order_Account" FromRole="Order" ToRole="Account" />
+          <NavigationProperty Name="Packages" Relationship="BankGatewayModel.FK_Package_Order" FromRole="Order" ToRole="Package" />
+        </EntityType>
+        <Association Name="FK_Order_Account">
+          <End Type="BankGatewayModel.Account" Role="Account" Multiplicity="1" />
+          <End Type="BankGatewayModel.Order" Role="Order" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Order">
+              <PropertyRef Name="SourceAccountId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Package_Order">
+          <End Type="BankGatewayModel.Order" Role="Order" Multiplicity="1" />
+          <End Type="BankGatewayModel.Package" Role="Package" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Order">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Package">
+              <PropertyRef Name="OrderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="BankGatewayModelStoreContainer" CdmEntityContainer="BankGatewayDBEntities">
+          <EntitySetMapping Name="Accounts">
+            <EntityTypeMapping TypeName="BankGatewayModel.Account">
+              <MappingFragment StoreEntitySet="Account">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="AccountNo" ColumnName="AccountNo" />
+                <ScalarProperty Name="IbanNo" ColumnName="IbanNo" />
+                <ScalarProperty Name="BankName" ColumnName="BankName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Packages">
+            <EntityTypeMapping TypeName="BankGatewayModel.Package">
+              <MappingFragment StoreEntitySet="Package">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ProjectPackageId" ColumnName="ProjectPackageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AppLogs">
+            <EntityTypeMapping TypeName="BankGatewayModel.AppLog">
+              <MappingFragment StoreEntitySet="AppLog">
+                <ScalarProperty Name="Exception" ColumnName="Exception" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Logger" ColumnName="Logger" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="Thread" ColumnName="Thread" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Records">
+            <EntityTypeMapping TypeName="BankGatewayModel.Record">
+              <MappingFragment StoreEntitySet="Record">
+                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
+                <ScalarProperty Name="ProjectRecordId" ColumnName="ProjectRecordId" />
+                <ScalarProperty Name="SourceAccountId" ColumnName="SourceAccountId" />
+                <ScalarProperty Name="PaymentStatus" ColumnName="PaymentStatus" />
+                <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="PaymentCode" ColumnName="PaymentCode" />
+                <ScalarProperty Name="DestinationName" ColumnName="DestinationName" />
+                <ScalarProperty Name="DestinationShebaNo" ColumnName="DestinationShebaNo" />
+                <ScalarProperty Name="DestinationAccountNo" ColumnName="DestinationAccountNo" />
+                <ScalarProperty Name="PackageId" ColumnName="PackageId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Orders">
+            <EntityTypeMapping TypeName="BankGatewayModel.Order">
+              <MappingFragment StoreEntitySet="Order">
+                <ScalarProperty Name="Confirm" ColumnName="Confirm" />
+                <ScalarProperty Name="SourceAccountId" ColumnName="SourceAccountId" />
+                <ScalarProperty Name="ProjectOrderId" ColumnName="ProjectOrderId" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ProjectName" ColumnName="ProjectName" />
+                <ScalarProperty Name="Payable" ColumnName="Payable" />
+                <ScalarProperty Name="DueDate" ColumnName="DueDate" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

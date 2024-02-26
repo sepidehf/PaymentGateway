@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="BankGateway.Services.Wcf.BankGatewayService" Factory="BankGateway.Services.Wcf.WcfServiceFactory" %>
